@@ -1,9 +1,6 @@
 package org.example.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 class BoardImpl implements Board {
 
@@ -23,7 +20,8 @@ class BoardImpl implements Board {
 
     @Override
     public void finishGame(String homeTeam, String awayTeam) {
-
+        GameDto gameDto = findGame(homeTeam, awayTeam);
+        games.remove(gameDto);
     }
 
     @Override
@@ -36,6 +34,22 @@ class BoardImpl implements Board {
         return List.of();
     }
 
+    private GameDto findGame(String homeTeam, String awayTeam) {
+        List<GameDto> list = games.stream()
+                .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
+                .toList();
+
+        if (list.size() > 1) {
+            throw new BusinessException(ErrorMessage.MULTIPLE_GAMES_FOUND);
+        }
+
+        if (list.isEmpty()) {
+            throw new BusinessException(ErrorMessage.NO_GAMES_FOUND);
+        }
+
+        return list.getFirst();
+    }
+
     private void validateStartGame(String homeTeam, String awayTeam) {
         Set<String> teams = new HashSet<>();
         this.games.forEach(gameDto -> {
@@ -44,7 +58,7 @@ class BoardImpl implements Board {
         });
 
         if (teams.contains(homeTeam) || teams.contains(awayTeam)) {
-            throw new BusinessException(ErrorMessage.TEAM_IS_ALREADY_PLAYING.getMessage());
+            throw new BusinessException(ErrorMessage.TEAM_IS_ALREADY_PLAYING);
         }
 
 
