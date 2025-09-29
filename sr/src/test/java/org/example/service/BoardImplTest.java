@@ -3,11 +3,12 @@ package org.example.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class BoardImplTest {
 
-    private Board board;
+    private BoardTestImpl board;
+
+    private static final String MEXICO = "Mexico";
+    private static final String CANADA = "Canada";
 
     @BeforeEach
     void setUp() {
@@ -16,7 +17,10 @@ class BoardImplTest {
 
 
     @Test
-    void emptyTest() {
-        System.out.println("WORKS");
+    void shouldStartGame() {
+        board.startGame(MEXICO, CANADA);
+
+
+
     }
 }
