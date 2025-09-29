@@ -26,7 +26,8 @@ class BoardImpl implements Board {
 
     @Override
     public void updateScore(GameDto gameDto) {
-
+        GameDto gameDtoFound = findGame(gameDto.getHomeTeam(), gameDto.getAwayTeam());
+        gameDtoFound.updateScore(gameDto.getHomeScore(), gameDto.getAwayScore());
     }
 
     @Override
