@@ -22,7 +22,6 @@ class BoardImplTest {
         board = new BoardTestImpl();
     }
 
-
     @Test
     void startGameShouldAddActiveGame() {
         //when
@@ -42,12 +41,24 @@ class BoardImplTest {
         //given
         board.startGame(MEXICO, CANADA);
 
-        //when
+        //when then
         BusinessException ex = assertThrows(BusinessException.class, () -> {
             board.startGame(MEXICO, SPAIN);
         });
 
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.TEAM_IS_ALREADY_PLAYING.getMessage());
+    }
+
+    @Test
+    void finishGameShouldFinishActiveGame() {
+        //when
+        board.startGame(MEXICO, CANADA);
+
+        //then
+        board.finishGame(MEXICO, CANADA);
+
+        Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
+        assertThat(gameDtoOptional).isEmpty();
     }
 
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
