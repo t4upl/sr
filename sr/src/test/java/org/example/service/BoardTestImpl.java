@@ -1,4 +1,10 @@
 package org.example.service;
 
-public class BoardTestImpl extends BoardImpl {
+import java.util.List;
+
+class BoardTestImpl extends BoardImpl {
+
+    List<GameDto> getGames() {
+        return this.games;
+    }
 }

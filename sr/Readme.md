@@ -14,3 +14,5 @@ Assumptions:
   - Ordering - in order to ensure that the same games in progress return always the same data in same order we will order data first by most recent and then by home team name. We are modyfing the requirement:
     `Those games with the same total score
     will be returned ordered by the most recently added to our system.`
+- Finish a game.
+  - We don't track anything for finished game. Once game is finished it is as if it never existed in the sytem

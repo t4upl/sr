@@ -3,6 +3,12 @@ package org.example.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.text.html.Option;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 class BoardImplTest {
 
     private BoardTestImpl board;
@@ -17,10 +23,32 @@ class BoardImplTest {
 
 
     @Test
-    void shouldStartGame() {
+    void startGameShoudlAddActiveGame() {
+        //when
         board.startGame(MEXICO, CANADA);
+
+        //then
+        Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
+        assertThat(gameDtoOptional).isPresent();
 
 
 
     }
+
+    private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
+        List<GameDto> list = games.stream()
+                .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
+                .toList();
+        if (list.size() > 1) {
+            throw new IllegalStateException(String.format("Searching games [%s] by homeTeam [%s], awayTeam [%s] returned more than one results. At most one expected"));
+        }
+
+        if (list.size() == 1) {
+            return Optional.of(list.get(0));
+        }
+        return Optional.empty();
+    }
+
+
+
 }

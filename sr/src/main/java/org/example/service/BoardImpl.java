@@ -1,8 +1,12 @@
 package org.example.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class BoardImpl implements Board {
+class BoardImpl implements Board {
+
+    protected List<GameDto> games = new ArrayList<>();
+
     @Override
     public void startGame(String homeTeam, String awayTeam) {
 
@@ -22,4 +26,7 @@ public class BoardImpl implements Board {
     public List<GameDto> getGamesSummary() {
         return List.of();
     }
+
+
+
 }
