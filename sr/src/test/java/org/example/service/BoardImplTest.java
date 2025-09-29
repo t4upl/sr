@@ -71,6 +71,31 @@ class BoardImplTest {
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.NO_GAMES_FOUND.getMessage());
     }
 
+    @Test
+    void updateScoreShouldUpdateScoreForActiveGame() {
+        //given
+        board.startGame(MEXICO, CANADA);
+        GameDto gameDtoRequest = GameDto.builder()
+                .homeTeam(MEXICO)
+                .awayTeam(CANADA)
+                .homeScore(1)
+                .awayScore(2)
+                .build();
+
+        //when
+        board.updateScore(gameDtoRequest);
+
+        //then
+        Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
+        assertThat(gameDtoOptional).isPresent();
+
+        GameDto gameDto = gameDtoOptional.get();
+
+        assertThat(gameDto.getHomeScore()).isEqualTo(gameDtoRequest.getHomeScore());
+        assertThat(gameDto.getAwayScore()).isEqualTo(gameDtoRequest.getAwayScore());
+
+    }
+
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
         List<GameDto> list = games.stream()
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
@@ -80,7 +105,7 @@ class BoardImplTest {
         }
 
         if (list.size() == 1) {
-            return Optional.of(list.get(0));
+            return Optional.of(list.getFirst());
         }
         return Optional.empty();
     }
