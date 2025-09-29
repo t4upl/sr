@@ -30,8 +30,10 @@ class BoardImplTest {
         //then
         Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
         assertThat(gameDtoOptional).isPresent();
+        GameDto gameDto = gameDtoOptional.get();
 
-
+        assertThat(gameDto.getHomeScore()).isEqualTo(0);
+        assertThat(gameDto.getAwayScore()).isEqualTo(0);
 
     }
 

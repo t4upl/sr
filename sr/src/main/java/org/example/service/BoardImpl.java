@@ -9,7 +9,12 @@ class BoardImpl implements Board {
 
     @Override
     public void startGame(String homeTeam, String awayTeam) {
-
+        games.add(GameDto.builder()
+                        .homeTeam(homeTeam)
+                        .awayTeam(awayTeam)
+                        .homeScore(0)
+                        .awayScore(0)
+                .build());
     }
 
     @Override
