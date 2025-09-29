@@ -61,6 +61,16 @@ class BoardImplTest {
         assertThat(gameDtoOptional).isEmpty();
     }
 
+    @Test
+    void finishGameShouldThrowErrorWhenNoActiveGame() {
+        //when then
+        BusinessException ex = assertThrows(BusinessException.class, () -> {
+            board.finishGame(MEXICO, SPAIN);
+        });
+
+        assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.NO_GAMES_FOUND.getMessage());
+    }
+
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
         List<GameDto> list = games.stream()
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
