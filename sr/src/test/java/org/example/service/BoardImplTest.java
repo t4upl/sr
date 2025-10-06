@@ -151,6 +151,34 @@ class BoardImplTest {
         assertThat(gamesSummary).isEmpty();
     }
 
+    @Test
+    void getGamesSummaryShouldReturnListOfActiveGames() {
+        //given
+        board.startGame(MEXICO, CANADA);
+        GameDto gameDtoRequest = GameDto.builder()
+                .homeTeam(MEXICO)
+                .awayTeam(CANADA)
+                .homeScore(1)
+                .awayScore(2)
+                .build();
+        board.updateScore(gameDtoRequest);
+
+
+        GameDto expectedGameDtoResponse = GameDto.builder()
+                .homeTeam(MEXICO)
+                .awayTeam(CANADA)
+                .homeScore(1)
+                .awayScore(2)
+                .build();
+
+        //when
+        List<GameDto> gamesSummary = board.getGamesSummary();
+
+        //then
+        assertThat(gamesSummary).hasSize(1);
+        assertThat(gamesSummary.getFirst()).isEqualTo(expectedGameDtoResponse);
+    }
+
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
         List<GameDto> list = games.stream()
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
