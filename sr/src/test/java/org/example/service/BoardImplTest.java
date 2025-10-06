@@ -120,7 +120,7 @@ class BoardImplTest {
         GameDto gameDtoRequestDecreaseScore = GameDto.builder()
                 .homeTeam(MEXICO)
                 .awayTeam(CANADA)
-                .homeScore(1)
+                .homeScore(0)
                 .awayScore(2)
                 .build();
 
@@ -134,7 +134,7 @@ class BoardImplTest {
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
                 .toList();
         if (list.size() > 1) {
-            throw new IllegalStateException(String.format("Searching games [%s] by homeTeam [%s], awayTeam [%s] returned more than one results. At most one expected"));
+            throw new IllegalStateException(String.format("Searching games [%s] by homeTeam [%s], awayTeam [%s] returned more than one results. At most one expected", games, homeTeam, awayTeam));
         }
 
         if (list.size() == 1) {

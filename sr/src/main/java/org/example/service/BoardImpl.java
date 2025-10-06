@@ -86,8 +86,16 @@ class BoardImpl implements Board {
         }
     }
 
-    private void validateUpdateScore(GameDto gameDto) {
-        validateUniqueGame(gameDto.getHomeTeam(), gameDto.getAwayTeam());
+    private void validateUpdateScore(GameDto gameDtoRequest) {
+        validateUniqueGame(gameDtoRequest.getHomeTeam(), gameDtoRequest.getAwayTeam());
+        validateCannotDecreaseScore(gameDtoRequest);
+    }
+
+    private void validateCannotDecreaseScore(GameDto gameDtoRequest) {
+        GameDto gameDto = findGame(gameDtoRequest.getHomeTeam(), gameDtoRequest.getAwayTeam());
+        if (gameDtoRequest.getHomeScore() < gameDto.getHomeScore() || gameDtoRequest.getAwayScore() < gameDto.getAwayScore()) {
+            throw new BusinessException(ErrorMessage.CANNOT_DECREASE_SCORE);
+        }
     }
 
 }
