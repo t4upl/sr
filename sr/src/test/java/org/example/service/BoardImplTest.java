@@ -163,12 +163,11 @@ class BoardImplTest {
                 .build();
         board.updateScore(gameDtoRequest);
 
-
         GameDto expectedGameDtoResponse = GameDto.builder()
-                .homeTeam(MEXICO)
-                .awayTeam(CANADA)
-                .homeScore(1)
-                .awayScore(2)
+                .homeTeam(gameDtoRequest.getHomeTeam())
+                .awayTeam(gameDtoRequest.getAwayTeam())
+                .homeScore(gameDtoRequest.getHomeScore())
+                .awayScore(gameDtoRequest.getAwayScore())
                 .build();
 
         //when

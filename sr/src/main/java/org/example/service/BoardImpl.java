@@ -33,7 +33,7 @@ class BoardImpl implements Board {
 
     @Override
     public List<GameDto> getGamesSummary() {
-        return List.of();
+        return this.games;
     }
 
     private boolean uiniqueGameExists(String homeTeam, String awayTeam) {
