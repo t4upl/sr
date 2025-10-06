@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.service.domain.GameDo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +22,8 @@ class BoardImplTest {
 
     @BeforeEach
     void setUp() {
-        board = new BoardTestImpl();
         timeProvider = new TimeProvidertestImpl();
+        board = new BoardTestImpl(timeProvider, new GameDoMapperImpl());
     }
 
     @Test
@@ -31,12 +32,13 @@ class BoardImplTest {
         board.startGame(MEXICO, CANADA);
 
         //then
-        Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
+        List<GameDo> gameDoList = getGames();
+        Optional<GameDo> gameDtoOptional = findByTeams(gameDoList, MEXICO, CANADA);
         assertThat(gameDtoOptional).isPresent();
-        GameDto gameDto = gameDtoOptional.get();
+        GameDo gameDo = gameDtoOptional.get();
 
-        assertThat(gameDto.getHomeScore()).isEqualTo(0);
-        assertThat(gameDto.getAwayScore()).isEqualTo(0);
+        assertThat(gameDo.getHomeScore()).isEqualTo(0);
+        assertThat(gameDo.getAwayScore()).isEqualTo(0);
     }
 
     @Test
@@ -58,7 +60,7 @@ class BoardImplTest {
         //then
         board.finishGame(MEXICO, CANADA);
 
-        Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
+        Optional<GameDo> gameDtoOptional = findByTeams(board.getGameDoList(), MEXICO, CANADA);
         assertThat(gameDtoOptional).isEmpty();
     }
 
@@ -73,28 +75,28 @@ class BoardImplTest {
     void updateScoreShouldUpdateScoreForActiveGame() {
         //given
         board.startGame(MEXICO, CANADA);
-        GameDto gameDtoRequest = createGameDto();
+        GameDo gameDoRequest = createGameDto();
 
         //when
-        board.updateScore(gameDtoRequest);
+        board.updateScore(gameDoRequest);
 
         //then
-        Optional<GameDto> gameDtoOptional = findByTeams(board.getGames(), MEXICO, CANADA);
+        Optional<GameDo> gameDtoOptional = findByTeams((board.getGameDoList()), MEXICO, CANADA);
         assertThat(gameDtoOptional).isPresent();
 
-        GameDto gameDto = gameDtoOptional.get();
+        GameDo gameDo = gameDtoOptional.get();
 
-        assertThat(gameDto.getHomeScore()).isEqualTo(gameDtoRequest.getHomeScore());
-        assertThat(gameDto.getAwayScore()).isEqualTo(gameDtoRequest.getAwayScore());
+        assertThat(gameDo.getHomeScore()).isEqualTo(gameDoRequest.getHomeScore());
+        assertThat(gameDo.getAwayScore()).isEqualTo(gameDoRequest.getAwayScore());
     }
 
     @Test
     void updateScoreShouldThrowErrorWhenNoGameToUpdate() {
         //given
-        GameDto gameDtoRequest = createGameDto();
+        GameDo gameDoRequest = createGameDto();
 
         //when then
-        BusinessException ex = assertThrows(BusinessException.class, () -> board.updateScore(gameDtoRequest));
+        BusinessException ex = assertThrows(BusinessException.class, () -> board.updateScore(gameDoRequest));
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.NO_GAMES_FOUND.getMessage());
     }
 
@@ -102,10 +104,10 @@ class BoardImplTest {
     void updateScoreShouldThrowErrorWhenTryingToDecreaseScore() {
         //given
         board.startGame(MEXICO, CANADA);
-        GameDto gameDtoRequest = createGameDto();
-        board.updateScore(gameDtoRequest);
+        GameDo gameDoRequest = createGameDto();
+        board.updateScore(gameDoRequest);
 
-        GameDto gameDtoRequestDecreaseScore = GameDto.builder()
+        GameDo gameDoRequestDecreaseScore = GameDo.builder()
                 .homeTeam(MEXICO)
                 .awayTeam(CANADA)
                 .homeScore(0)
@@ -113,14 +115,14 @@ class BoardImplTest {
                 .build();
 
         //when then
-        BusinessException ex = assertThrows(BusinessException.class, () -> board.updateScore(gameDtoRequestDecreaseScore));
+        BusinessException ex = assertThrows(BusinessException.class, () -> board.updateScore(gameDoRequestDecreaseScore));
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.CANNOT_DECREASE_SCORE.getMessage());
     }
 
     @Test
     void getGamesSummaryShouldReturnEmptyListWhenNoGames() {
         //when
-        List<GameDto> gamesSummary = board.getGamesSummary();
+        List<GameDo> gamesSummary = board.getGamesSummary();
 
         //then
         assertThat(gamesSummary).isEmpty();
@@ -133,7 +135,7 @@ class BoardImplTest {
         board.finishGame(MEXICO, CANADA);
 
         //when
-        List<GameDto> gamesSummary = board.getGamesSummary();
+        List<GameDo> gamesSummary = board.getGamesSummary();
 
         //then
         assertThat(gamesSummary).isEmpty();
@@ -143,22 +145,22 @@ class BoardImplTest {
     void getGamesSummaryShouldReturnListOfActiveGames() {
         //given
         board.startGame(MEXICO, CANADA);
-        GameDto gameDtoRequest = createGameDto();
-        board.updateScore(gameDtoRequest);
+        GameDo gameDoRequest = createGameDto();
+        board.updateScore(gameDoRequest);
 
-        GameDto expectedGameDtoResponse = GameDto.builder()
-                .homeTeam(gameDtoRequest.getHomeTeam())
-                .awayTeam(gameDtoRequest.getAwayTeam())
-                .homeScore(gameDtoRequest.getHomeScore())
-                .awayScore(gameDtoRequest.getAwayScore())
+        GameDo expectedGameDoResponse = GameDo.builder()
+                .homeTeam(gameDoRequest.getHomeTeam())
+                .awayTeam(gameDoRequest.getAwayTeam())
+                .homeScore(gameDoRequest.getHomeScore())
+                .awayScore(gameDoRequest.getAwayScore())
                 .build();
 
         //when
-        List<GameDto> gamesSummary = board.getGamesSummary();
+        List<GameDo> gamesSummary = board.getGamesSummary();
 
         //then
         assertThat(gamesSummary).hasSize(1);
-        assertThat(gamesSummary.getFirst()).isEqualTo(expectedGameDtoResponse);
+        assertThat(gamesSummary.getFirst()).isEqualTo(expectedGameDoResponse);
     }
 
     @Test
@@ -184,12 +186,12 @@ class BoardImplTest {
         board.startGame(argentina, australia);
 
 
-        GameDto updatedGame = createGameDto(SPAIN, brazil, 3, 4);
+        GameDo updatedGame = createGameDto(SPAIN, brazil, 3, 4);
         board.updateScore(updatedGame);
 
         List<String> homeTeamsSorted = List.of(MEXICO, SPAIN, argentina, germany);
 
-        GameDto expectedUpdatedGameResponse = GameDto.builder()
+        GameDo expectedUpdatedGameResponse = GameDo.builder()
                 .homeTeam(updatedGame.getHomeTeam())
                 .awayTeam(updatedGame.getAwayTeam())
                 .homeScore(updatedGame.getHomeScore())
@@ -197,18 +199,18 @@ class BoardImplTest {
                 .build();
 
         //when
-        List<GameDto> games = board.getGames();
+        List<GameDo> games = board.getGameDoList();
 
         //then
-        assertThat(games).map(GameDto::getHomeTeam).isEqualTo(homeTeamsSorted);
-        Optional<GameDto> gameDtoOptional = findByTeams(games, MEXICO, SPAIN);
+        assertThat(games).map(GameDo::getHomeTeam).isEqualTo(homeTeamsSorted);
+        Optional<GameDo> gameDtoOptional = findByTeams(games, MEXICO, SPAIN);
         assertThat(gameDtoOptional).isPresent();
-        GameDto gameDto = gameDtoOptional.get();
-        assertThat(gameDto).isEqualTo(expectedUpdatedGameResponse);
+        GameDo gameDo = gameDtoOptional.get();
+        assertThat(gameDo).isEqualTo(expectedUpdatedGameResponse);
     }
 
-    private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
-        List<GameDto> list = games.stream()
+    private Optional<GameDo> findByTeams(List<GameDo> games, String homeTeam, String awayTeam) {
+        List<GameDo> list = games.stream()
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
                 .toList();
         if (list.size() > 1) {
@@ -222,8 +224,8 @@ class BoardImplTest {
     }
 
 
-    private static GameDto createGameDto(String homeTeam, String awayTeam, int homeScore, int awayScore) {
-        return GameDto.builder()
+    private static GameDo createGameDto(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+        return GameDo.builder()
                 .homeTeam(homeTeam)
                 .awayTeam(awayTeam)
                 .homeScore(homeScore)
@@ -231,13 +233,17 @@ class BoardImplTest {
                 .build();
     }
 
-    private static GameDto createGameDto() {
-        return GameDto.builder()
+    private static GameDo createGameDto() {
+        return GameDo.builder()
                 .homeTeam(MEXICO)
                 .awayTeam(CANADA)
                 .homeScore(1)
                 .awayScore(2)
                 .build();
+    }
+
+    private List<GameDo> getGames() {
+        return board.getGameDoList();
     }
 
 }

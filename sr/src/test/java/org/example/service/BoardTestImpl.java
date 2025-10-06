@@ -1,10 +1,18 @@
 package org.example.service;
 
+import org.example.service.domain.GameDo;
+
 import java.util.List;
 
 class BoardTestImpl extends BoardImpl {
 
-    List<GameDto> getGames() {
-        return this.games;
+
+    public BoardTestImpl(TimeProvider timeProvider, GameDoMapper gameDoMapper) {
+        super(timeProvider, gameDoMapper);
     }
+
+    List<GameDo> getGameDoList() {
+        return this.mapGameDtoSytemListToGameDo(this.games);
+    }
+
 }

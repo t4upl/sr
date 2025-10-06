@@ -1,65 +1,86 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
+import org.example.service.domain.GameDo;
+
 import java.util.*;
 
+@RequiredArgsConstructor
 class BoardImpl implements Board {
 
-    protected List<GameDto> games = new ArrayList<>();
+    protected List<GameDtoSystem> games = new ArrayList<>();
+    private final TimeProvider timeProvider;
+    private final GameDoMapper gameDoMapper;
 
     @Override
     public void startGame(String homeTeam, String awayTeam) {
         validateStartGame(homeTeam, awayTeam);
-        games.add(GameDto.builder()
-                        .homeTeam(homeTeam)
-                        .awayTeam(awayTeam)
-                        .homeScore(0)
-                        .awayScore(0)
-                .build());
+        games.add(createGame(homeTeam, awayTeam));
+    }
+
+    private GameDtoSystem createGame(String homeTeam, String awayTeam) {
+        GameDo gameDo = GameDo.builder()
+                .homeTeam(homeTeam)
+                .awayTeam(awayTeam)
+                .homeScore(0)
+                .awayScore(0)
+                .build();
+
+        return GameDtoSystem.builder()
+                .gameDo(gameDo)
+                .metadata(new GameDtoSystem.Metadata(this.timeProvider.getLocalDateTime()))
+                .build();
     }
 
     @Override
     public void finishGame(String homeTeam, String awayTeam) {
         validateFinishGame(homeTeam, awayTeam);
-        GameDto gameDto = findGame(homeTeam, awayTeam);
-        games.remove(gameDto);
+        GameDtoSystem gameDtoSystem = findGameDtoSystem(homeTeam, awayTeam);
+        games.remove(gameDtoSystem);
     }
 
     @Override
-    public void updateScore(GameDto gameDto) {
-        validateUpdateScore(gameDto);
-        GameDto gameDtoFound = findGame(gameDto.getHomeTeam(), gameDto.getAwayTeam());
-        gameDtoFound.updateScore(gameDto.getHomeScore(), gameDto.getAwayScore());
+    public void updateScore(GameDo gameDo) {
+        validateUpdateScore(gameDo);
+        GameDo gameDoFound = findGame(gameDo.getHomeTeam(), gameDo.getAwayTeam());
+        gameDoFound.updateScore(gameDo.getHomeScore(), gameDo.getAwayScore());
     }
 
     @Override
-    public List<GameDto> getGamesSummary() {
-        return this.games;
+    public List<GameDo> getGamesSummary() {
+        List<GameDtoSystem> list = this.games.stream().sorted().toList();
+        return mapGameDtoSytemListToGameDo(list);
     }
 
     private boolean uiniqueGameExists(String homeTeam, String awayTeam) {
-        List<GameDto> list = getListOfGames(homeTeam, awayTeam);
+        List<GameDtoSystem> list = getListOfGamesGameDtoSystem(homeTeam, awayTeam);
         return list.size() == 1;
     }
 
-    private List<GameDto> getListOfGames(String homeTeam, String awayTeam) {
+    private List<GameDtoSystem> getListOfGamesGameDtoSystem(String homeTeam, String awayTeam) {
         return games.stream()
-                .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
+                .filter(game -> homeTeam.equals(game.getGameDo().getHomeTeam()) && awayTeam.equals(game.getGameDo().getAwayTeam()))
                 .toList();
     }
 
-    private GameDto findGame(String homeTeam, String awayTeam) {
-        List<GameDto> list = getListOfGames(homeTeam, awayTeam);
+    private GameDtoSystem findGameDtoSystem(String homeTeam, String awayTeam) {
+        List<GameDtoSystem> list = getListOfGamesGameDtoSystem(homeTeam, awayTeam);
         if (list.size() != 1) {
             throw new IllegalStateException(String.format("Cannot find unique game by homeTeam [%s], awayTeam [%s] awayTeam", homeTeam, awayTeam));
         }
         return list.getFirst();
     }
 
+    private GameDo findGame(String homeTeam, String awayTeam) {
+        GameDtoSystem gameDtoSystem = findGameDtoSystem(homeTeam, awayTeam);
+        return this.gameDoMapper.mapGameDtoSytemListToGameDo(List.of(gameDtoSystem)).getFirst();
+    }
+
     private void validateStartGame(String homeTeam, String awayTeam) {
         Set<String> teams = new HashSet<>();
         this.games.forEach(gameDto -> {
-            teams.add(gameDto.getHomeTeam());
-            teams.add(gameDto.getAwayTeam());
+            teams.add(gameDto.getGameDo().getHomeTeam());
+            teams.add(gameDto.getGameDo().getAwayTeam());
         });
 
         if (teams.contains(homeTeam) || teams.contains(awayTeam)) {
@@ -76,7 +97,7 @@ class BoardImpl implements Board {
             return;
         }
 
-        List<GameDto> listOfGames = getListOfGames(homeTeam, awayTeam);
+        List<GameDtoSystem> listOfGames = getListOfGamesGameDtoSystem(homeTeam, awayTeam);
         if (listOfGames.size() > 1) {
             throw new BusinessException(ErrorMessage.MULTIPLE_GAMES_FOUND);
         }
@@ -86,16 +107,20 @@ class BoardImpl implements Board {
         }
     }
 
-    private void validateUpdateScore(GameDto gameDtoRequest) {
-        validateUniqueGame(gameDtoRequest.getHomeTeam(), gameDtoRequest.getAwayTeam());
-        validateCannotDecreaseScore(gameDtoRequest);
+    private void validateUpdateScore(GameDo gameDoRequest) {
+        validateUniqueGame(gameDoRequest.getHomeTeam(), gameDoRequest.getAwayTeam());
+        validateCannotDecreaseScore(gameDoRequest);
     }
 
-    private void validateCannotDecreaseScore(GameDto gameDtoRequest) {
-        GameDto gameDto = findGame(gameDtoRequest.getHomeTeam(), gameDtoRequest.getAwayTeam());
-        if (gameDtoRequest.getHomeScore() < gameDto.getHomeScore() || gameDtoRequest.getAwayScore() < gameDto.getAwayScore()) {
+    private void validateCannotDecreaseScore(GameDo gameDoRequest) {
+        GameDo gameDo = findGame(gameDoRequest.getHomeTeam(), gameDoRequest.getAwayTeam());
+        if (gameDoRequest.getHomeScore() < gameDo.getHomeScore() || gameDoRequest.getAwayScore() < gameDo.getAwayScore()) {
             throw new BusinessException(ErrorMessage.CANNOT_DECREASE_SCORE);
         }
+    }
+
+    protected List<GameDo> mapGameDtoSytemListToGameDo(List<GameDtoSystem> games) {
+        return this.gameDoMapper.mapGameDtoSytemListToGameDo(games);
     }
 
 }

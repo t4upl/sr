@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.domain;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 @Builder
-public class GameDto {
+public class GameDo {
     String homeTeam;
     String awayTeam;
     int homeScore;
