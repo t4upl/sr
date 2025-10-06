@@ -19,12 +19,14 @@ class BoardImpl implements Board {
 
     @Override
     public void finishGame(String homeTeam, String awayTeam) {
+        validateFinishGame(homeTeam, awayTeam);
         GameDto gameDto = findGame(homeTeam, awayTeam);
         games.remove(gameDto);
     }
 
     @Override
     public void updateScore(GameDto gameDto) {
+        validateUpdateScore(gameDto);
         GameDto gameDtoFound = findGame(gameDto.getHomeTeam(), gameDto.getAwayTeam());
         gameDtoFound.updateScore(gameDto.getHomeScore(), gameDto.getAwayScore());
     }
@@ -34,19 +36,22 @@ class BoardImpl implements Board {
         return List.of();
     }
 
-    private GameDto findGame(String homeTeam, String awayTeam) {
-        List<GameDto> list = games.stream()
+    private boolean uiniqueGameExists(String homeTeam, String awayTeam) {
+        List<GameDto> list = getListOfGames(homeTeam, awayTeam);
+        return list.size() == 1;
+    }
+
+    private List<GameDto> getListOfGames(String homeTeam, String awayTeam) {
+        return games.stream()
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
                 .toList();
+    }
 
-        if (list.size() > 1) {
-            throw new BusinessException(ErrorMessage.MULTIPLE_GAMES_FOUND);
+    private GameDto findGame(String homeTeam, String awayTeam) {
+        List<GameDto> list = getListOfGames(homeTeam, awayTeam);
+        if (list.size() != 1) {
+            throw new IllegalStateException(String.format("Cannot find unique game by homeTeam [%s], awayTeam [%s] awayTeam", homeTeam, awayTeam));
         }
-
-        if (list.isEmpty()) {
-            throw new BusinessException(ErrorMessage.NO_GAMES_FOUND);
-        }
-
         return list.getFirst();
     }
 
@@ -60,10 +65,29 @@ class BoardImpl implements Board {
         if (teams.contains(homeTeam) || teams.contains(awayTeam)) {
             throw new BusinessException(ErrorMessage.TEAM_IS_ALREADY_PLAYING);
         }
-
-
     }
 
+    private void validateFinishGame(String homeTeam, String awayTeam) {
+        validateUniqueGame(homeTeam, awayTeam);
+    }
 
+    private void validateUniqueGame(String homeTeam, String awayTeam) {
+        if (uiniqueGameExists(homeTeam, awayTeam)) {
+            return;
+        }
+
+        List<GameDto> listOfGames = getListOfGames(homeTeam, awayTeam);
+        if (listOfGames.size() > 1) {
+            throw new BusinessException(ErrorMessage.MULTIPLE_GAMES_FOUND);
+        }
+
+        if (listOfGames.isEmpty()) {
+            throw new BusinessException(ErrorMessage.NO_GAMES_FOUND);
+        }
+    }
+
+    private void validateUpdateScore(GameDto gameDto) {
+        validateUniqueGame(gameDto.getHomeTeam(), gameDto.getAwayTeam());
+    }
 
 }
