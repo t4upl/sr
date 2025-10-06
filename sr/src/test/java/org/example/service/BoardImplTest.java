@@ -42,9 +42,7 @@ class BoardImplTest {
         board.startGame(MEXICO, CANADA);
 
         //when then
-        BusinessException ex = assertThrows(BusinessException.class, () -> {
-            board.startGame(MEXICO, SPAIN);
-        });
+        BusinessException ex = assertThrows(BusinessException.class, () -> board.startGame(MEXICO, SPAIN));
 
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.TEAM_IS_ALREADY_PLAYING.getMessage());
     }
@@ -64,10 +62,7 @@ class BoardImplTest {
     @Test
     void finishGameShouldThrowErrorWhenNoActiveGame() {
         //when then
-        BusinessException ex = assertThrows(BusinessException.class, () -> {
-            board.finishGame(MEXICO, SPAIN);
-        });
-
+        BusinessException ex = assertThrows(BusinessException.class, () -> board.finishGame(MEXICO, SPAIN));
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.NO_GAMES_FOUND.getMessage());
     }
 
@@ -93,7 +88,45 @@ class BoardImplTest {
 
         assertThat(gameDto.getHomeScore()).isEqualTo(gameDtoRequest.getHomeScore());
         assertThat(gameDto.getAwayScore()).isEqualTo(gameDtoRequest.getAwayScore());
+    }
 
+    @Test
+    void updateScoreShouldThrowErrorWhenNoGameToUpdate() {
+        //given
+        GameDto gameDtoRequest = GameDto.builder()
+                .homeTeam(MEXICO)
+                .awayTeam(CANADA)
+                .homeScore(1)
+                .awayScore(2)
+                .build();
+
+        //when then
+        BusinessException ex = assertThrows(BusinessException.class, () -> board.updateScore(gameDtoRequest));
+        assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.NO_GAMES_FOUND.getMessage());
+    }
+
+    @Test
+    void updateScoreShouldThrowErrorWhenTryingToDecreaseScore() {
+        //given
+        board.startGame(MEXICO, CANADA);
+        GameDto gameDtoRequest = GameDto.builder()
+                .homeTeam(MEXICO)
+                .awayTeam(CANADA)
+                .homeScore(1)
+                .awayScore(2)
+                .build();
+        board.updateScore(gameDtoRequest);
+
+        GameDto gameDtoRequestDecreaseScore = GameDto.builder()
+                .homeTeam(MEXICO)
+                .awayTeam(CANADA)
+                .homeScore(1)
+                .awayScore(2)
+                .build();
+
+        //when then
+        BusinessException ex = assertThrows(BusinessException.class, () -> board.updateScore(gameDtoRequestDecreaseScore));
+        assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.CANNOT_DECREASE_SCORE.getMessage());
     }
 
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {

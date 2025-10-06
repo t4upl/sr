@@ -9,7 +9,6 @@ class BoardImpl implements Board {
     @Override
     public void startGame(String homeTeam, String awayTeam) {
         validateStartGame(homeTeam, awayTeam);
-
         games.add(GameDto.builder()
                         .homeTeam(homeTeam)
                         .awayTeam(awayTeam)
