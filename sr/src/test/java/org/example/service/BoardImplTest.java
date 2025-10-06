@@ -136,8 +136,19 @@ class BoardImplTest {
 
         //then
         assertThat(gamesSummary).isEmpty();
+    }
 
+    @Test
+    void getGamesSummaryShouldReturnEmptyListWhenAllGamesFinished() {
+        //given
+        board.startGame(MEXICO, CANADA);
+        board.finishGame(MEXICO, CANADA);
 
+        //when
+        List<GameDto> gamesSummary = board.getGamesSummary();
+
+        //then
+        assertThat(gamesSummary).isEmpty();
     }
 
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
