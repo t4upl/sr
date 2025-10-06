@@ -1,7 +1,7 @@
-package org.example.service;
+package org.pd.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.service.domain.GameDo;
+import org.pd.service.domain.GameDo;
 
 import java.util.*;
 

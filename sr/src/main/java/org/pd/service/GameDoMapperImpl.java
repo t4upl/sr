@@ -1,6 +1,6 @@
-package org.example.service;
+package org.pd.service;
 
-import org.example.service.domain.GameDo;
+import org.pd.service.domain.GameDo;
 
 import java.util.List;
 

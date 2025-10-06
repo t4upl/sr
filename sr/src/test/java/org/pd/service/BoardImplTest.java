@@ -1,6 +1,6 @@
-package org.example.service;
+package org.pd.service;
 
-import org.example.service.domain.GameDo;
+import org.pd.service.domain.GameDo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

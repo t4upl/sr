@@ -1,10 +1,10 @@
-package org.example.service;
+package org.pd.service;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Value;
-import org.example.service.domain.GameDo;
+import org.pd.service.domain.GameDo;
 
 import java.time.LocalDateTime;
 

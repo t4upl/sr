@@ -1,4 +1,4 @@
-package org.example.service;
+package org.pd.service;
 
 import lombok.Setter;
 

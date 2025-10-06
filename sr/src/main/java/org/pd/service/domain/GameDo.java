@@ -1,4 +1,4 @@
-package org.example.service.domain;
+package org.pd.service.domain;
 
 import lombok.*;
 
