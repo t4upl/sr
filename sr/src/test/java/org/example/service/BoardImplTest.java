@@ -129,6 +129,17 @@ class BoardImplTest {
         assertThat(ex.getBusinessMessage()).isEqualTo(ErrorMessage.CANNOT_DECREASE_SCORE.getMessage());
     }
 
+    @Test
+    void getGamesSummaryShouldReturnEmptyListWhenNoGames() {
+        //when
+        List<GameDto> gamesSummary = board.getGamesSummary();
+
+        //then
+        assertThat(gamesSummary).isEmpty();
+
+
+    }
+
     private Optional<GameDto> findByTeams(List<GameDto> games, String homeTeam, String awayTeam) {
         List<GameDto> list = games.stream()
                 .filter(game -> homeTeam.equals(game.getHomeTeam()) && awayTeam.equals(game.getAwayTeam()))
