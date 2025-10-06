@@ -1,7 +1,7 @@
 package org.example.service;
 
-import jdk.jfr.MetadataDefinition;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Value;
 import org.example.service.domain.GameDo;
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
+@EqualsAndHashCode
 public class GameDtoSystem {
 
     private GameDo gameDo;

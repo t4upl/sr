@@ -1,3 +1,15 @@
+Task:
+The aim of this recruitment task was to implement football score board implementation which allows: 
+- starting a game, finishing
+- finishing a game
+- updating a score
+- displaying active games
+
+Implementation
+- Interface: [Board.java](src%2Fmain%2Fjava%2Forg%2Fexample%2Fservice%2FBoard.java)
+- Implementation: [BoardImpl.java](src%2Fmain%2Fjava%2Forg%2Fexample%2Fservice%2FBoardImpl.java)
+- Tests: [BoardImplTest.java](src%2Ftest%2Fjava%2Forg%2Fexample%2Fservice%2FBoardImplTest.java)
+
 Assumptions:
 - General assumption
   - We assume the time we receive event is when event happened. There is no delay between time when event happened and when this information is passed to the board
@@ -23,3 +35,4 @@ Assumptions:
 
 Technical assumption:
 - For now we don't care about making error messages readable and easy to investigate
+- In company's code I would use mapstruct for mapping  

@@ -48,7 +48,9 @@ class BoardImpl implements Board {
 
     @Override
     public List<GameDo> getGamesSummary() {
-        List<GameDtoSystem> list = this.games.stream().sorted().toList();
+        Comparator<GameDtoSystem> compareByGameStartThenHomeTeam = Comparator.comparing((GameDtoSystem gameDtoSystem) -> gameDtoSystem.getMetadata().getGameStart())
+                .thenComparing(gameDtoSystem -> gameDtoSystem.getGameDo().getHomeTeam());
+        List<GameDtoSystem> list = this.games.stream().sorted(compareByGameStartThenHomeTeam).toList();
         return mapGameDtoSytemListToGameDo(list);
     }
 

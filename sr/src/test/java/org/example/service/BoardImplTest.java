@@ -199,11 +199,11 @@ class BoardImplTest {
                 .build();
 
         //when
-        List<GameDo> games = board.getGameDoList();
+        List<GameDo> games = board.getGamesSummary();
 
         //then
-        assertThat(games).map(GameDo::getHomeTeam).isEqualTo(homeTeamsSorted);
-        Optional<GameDo> gameDtoOptional = findByTeams(games, MEXICO, SPAIN);
+        assertThat(games).extracting(GameDo::getHomeTeam).containsExactlyElementsOf(homeTeamsSorted);
+        Optional<GameDo> gameDtoOptional = findByTeams(games, SPAIN, brazil);
         assertThat(gameDtoOptional).isPresent();
         GameDo gameDo = gameDtoOptional.get();
         assertThat(gameDo).isEqualTo(expectedUpdatedGameResponse);
@@ -222,7 +222,6 @@ class BoardImplTest {
         }
         return Optional.empty();
     }
-
 
     private static GameDo createGameDto(String homeTeam, String awayTeam, int homeScore, int awayScore) {
         return GameDo.builder()
