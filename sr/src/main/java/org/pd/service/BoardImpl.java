@@ -6,7 +6,7 @@ import org.pd.service.domain.GameDo;
 import java.util.*;
 
 @RequiredArgsConstructor
-class BoardImpl implements Board {
+public class BoardImpl implements Board {
 
     protected List<GameDtoSystem> games = new ArrayList<>();
     private final TimeProvider timeProvider;
